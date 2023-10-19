@@ -4,23 +4,23 @@
   become: true
   pre_tasks:
 
-  - name: install updates (CentOS)
-    package:
-      update_only: yes
-      update_cache: yes
-    when: ansible_distribution == "CentOS"
+    - name: install updates (CentOS)
+      package:
+        update_only: yes
+        update_cache: yes
+      when: ansible_distribution == "CentOS"
 
-  - name: install wget (CentOS)
-    package:
-      name: wget
-      state: latest
-    when: ansible_distribution == "CentOS"
+    - name: install wget (CentOS)
+      package:
+        name: wget
+        state: latest
+      when: ansible_distribution == "CentOS"
 
-  - name: install updates (Ubuntu)
-    apt:
-      upgrade: dist
-      update_cache: yes
-    when: ansible_distribution == "Ubuntu"
+    - name: install updates (Ubuntu)
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
 
 - hosts: ubuntu_prometheus
   become: true

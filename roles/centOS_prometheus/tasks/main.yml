@@ -1,48 +1,42 @@
+- name: Creating a directory (where the downloaded files will be stored)
+  tags: directory
+  file:
+    path: ~/prometheus
+    state: directory
+  
+- name: Downloading and extracting Prometheus
+  tags: source
+  unarchive:
+    src: https://github.com/prometheus/prometheus/releases/download/v2.8.1/prometheus-2.8.1.linux-amd64.tar.gz
+    dest: ~/prometheus
+    remote_src: yes
+    mode: 0777
+    owner: root
+    group: root
 
-  - name: Prometheus PATH directory
-    file:
-      path: ~/prometheus
-      state: directory
+- name: Stopping the service 
+  service:
+    name: prometheus
+    state: stopped 
 
+- name: Adding the Prometheus executables to a PATH
+  tags: executables
+  shell: | 
+    cd ~/prometheus/prometheus*
+    cp -r . /usr/local/bin/prometheus
 
-  - name: Creating directory for Prometheus files
-    file:
-      path:
-        - /etc/prometheus
-        - /var/lib/prometheus
-      mode: 0777
-      state: directory
+- name: Copying the Prometheus service file
+  tags: servicefile
+  copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+    mode: 777
 
-  - name: Install Prometheus (CentOS)
-    unarchive:
-      src: https://github.com/prometheus/prometheus/releases/download/v2.8.1/prometheus-2.8.1.linux-amd64.tar.gz
-      dest: ~/prometheus
-      remote_src: yes
-      mode: 0777
-      owner: root
-      group: root
-
-  - name: Configuring Prometheus
-    shell: |
-      cd ~/prometheus/prometheus*
-      cp -r . /usr/local/bin/prometheus
-
-  - name: Prometheus config file duplicate
-    copy:
-      src: prometheus.service
-      dest: /etc/systemd/system
-      mode: 7777
-      owner: root
-      group: root
-
-  - name: Prometheus Start/Enable Check
-    service:
-      name: prometheus.service
-      state: restarted
-      enabled: true
-
-  - name: httpd Start/Enable Check
-    service:
-      name: httpd
-      state: restarted
-      enabled: true
+- name: Making sure that Prometheus is started and enabled
+  tags: serviceon
+  service:
+    name: prometheus
+    state: restarted
+    enabled: true
